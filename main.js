@@ -114,6 +114,7 @@ function displayBotMessage(message, options = {}) {
             const btn = document.createElement('button');
             btn.classList.add('btn', 'btn-outline-secondary', 'btn-sm');
             btn.textContent = suggestion.label;
+            btn.setAttribute('aria-label', `Selecionar ${suggestion.label}`); // Acessibilidade
             btn.onclick = () => handleUserResponse(suggestion.value);
             suggestionsDiv.appendChild(btn);
         });
@@ -142,6 +143,7 @@ function setupServiceButtons() {
         const btn = document.createElement('button');
         btn.classList.add('btn', 'btn-primary', 'btn-lg');
         btn.textContent = services[serviceKey].displayName;
+        btn.setAttribute('aria-label', `Selecionar serviço: ${services[serviceKey].displayName}`); // Acessibilidade
         btn.onclick = () => selectService(serviceKey);
         serviceSelectionDiv.appendChild(btn);
     }
@@ -258,7 +260,7 @@ function setupInputForQuestion(questionData) {
     // Usa 'text' para number para permitir placeholder e validação customizada, depois ajusta inputmode
     userInput.type = questionData.type === 'number' ? 'text' : questionData.type;
     userInput.placeholder = `Ex: ${questionData.defaultValue !== undefined ? questionData.defaultValue : 'Sua resposta'}`;
-    userInput.setAttribute('aria-label', questionData.text);
+    userInput.setAttribute('aria-label', questionData.text); // Acessibilidade
 
     // Remover listeners anteriores para evitar duplicidade
     const oldSendButton = document.getElementById('send-button');
@@ -266,6 +268,7 @@ function setupInputForQuestion(questionData) {
     oldSendButton.parentNode.replaceChild(newSendButton, oldSendButton);
     // Adiciona novo listener ao botão de enviar
     newSendButton.onclick = () => handleUserResponseWrapper();
+    newSendButton.setAttribute('aria-label', 'Enviar resposta'); // Acessibilidade
 
     // Habilitar/desabilitar conforme o tipo
     if (questionData.type === 'select' || questionData.type === 'boolean') {
@@ -284,6 +287,7 @@ function setupInputForQuestion(questionData) {
                 const btn = document.createElement('button');
                 btn.classList.add('btn', 'btn-outline-secondary', 'btn-sm');
                 btn.textContent = btnData.label;
+                btn.setAttribute('aria-label', `Selecionar ${btnData.label}`); // Acessibilidade
                 btn.onclick = () => handleUserResponse(btnData.value);
                 suggestionsDiv.appendChild(btn);
             });
@@ -625,6 +629,7 @@ function displayPriceAndContinue(priceResult) {
         const btn = document.createElement('button');
         btn.classList.add('btn', 'btn-success', 'me-2'); // Botões de ação final
         btn.textContent = suggestion.label;
+        btn.setAttribute('aria-label', suggestion.label); // Acessibilidade
         btn.onclick = () => handleFinalActions(suggestion.value);
         suggestionsDiv.appendChild(btn);
     });
@@ -649,7 +654,10 @@ function handleFinalActions(action) {
      clearErrorMessage();
      switch(action) {
          case 'save_lead':
-             packageAndSaveLead();
+             // Adiciona confirmação antes de salvar o lead
+             if (confirm("Você deseja salvar este orçamento como um lead?")) {
+                 packageAndSaveLead();
+             }
              break;
          case 'new_simulation':
              resetChat();
@@ -812,6 +820,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const toggleButton = document.createElement('button');
         toggleButton.classList.add('btn', 'btn-outline-info', 'mt-3', 'mb-3'); // Estilos para o botão
         toggleButton.textContent = 'Ver/Ocultar Leads e Métricas';
+        toggleButton.setAttribute('aria-label', 'Alternar visibilidade do painel de leads e métricas'); // Acessibilidade
         toggleButton.onclick = toggleLeadDashboard; // Define a função a ser chamada ao clicar
 
         // Insere o botão antes do footer, se o footer existir
@@ -887,6 +896,8 @@ Cenário: Usuário simula um serviço de Pintor.
         [Salvar Orçamento (Lead)] [Nova Simulação]
 
 9.  **Usuário:** Clica em `[Salvar Orçamento (Lead)]`.
+    **Bot:** (Pergunta de confirmação) "Você deseja salvar este orçamento como um lead?"
+    **Usuário:** Confirma.
     **Bot:** (Salva o lead no localStorage)
         Orçamento para Pintor salvo com sucesso como lead! ID: [ID_GERADO].
         (Painel de Leads é atualizado, exibindo o novo lead)
@@ -898,7 +909,7 @@ Cenário: Usuário simula um serviço de Pintor.
         [Gesseiro] [Marceneiro] [Marmoreiro] [Pintor]
 */
 
-// --- FUNÇÕES DE EMPACOTAMENTO DE LEAD (ETAPA 3) ---
+// --- FUNÇÕES DE EMPACOTAMENTO DE LEAD (ETAPA 3 E 4) ---
 
 function packageAndSaveLead() {
     // Verifica se há serviço e respostas para salvar
@@ -1276,6 +1287,474 @@ document.addEventListener('DOMContentLoaded', () => {
         const toggleButton = document.createElement('button');
         toggleButton.classList.add('btn', 'btn-outline-info', 'mt-3', 'mb-3'); // Estilos para o botão
         toggleButton.textContent = 'Ver/Ocultar Leads e Métricas';
+        toggleButton.setAttribute('aria-label', 'Alternar visibilidade do painel de leads e métricas'); // Acessibilidade
+        toggleButton.onclick = toggleLeadDashboard; // Define a função a ser chamada ao clicar
+
+        // Insere o botão antes do footer, se o footer existir
+        const footer = container.querySelector('footer');
+        if (footer) {
+            container.insertBefore(toggleButton, footer);
+        } else {
+            container.appendChild(toggleButton); // Adiciona ao final se não houver footer
+        }
+    }
+
+     // Inicializa a exibição dos dashboards se já houver dados salvos
+     if(conversationState.leads && conversationState.leads.length > 0) {
+         displayLeadDashboard();
+     }
+     updateMetricsDashboard(); // Atualiza as métricas mesmo que não haja leads
+});
+
+// Adiciona listener para o botão de enviar na área de input
+document.getElementById('send-button').addEventListener('click', handleUserResponseWrapper);
+
+// Permite o envio da resposta pressionando a tecla Enter no campo de input
+document.getElementById('user-input').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        handleUserResponseWrapper();
+    }
+});
+
+// --- EXEMPLO DE DIÁLOGO COMPLETO (COMENTADO) ---
+/*
+Cenário: Usuário simula um serviço de Pintor.
+
+1.  **Usuário:** Abre a página.
+    **Bot:** Olá! Por favor, selecione o tipo de serviço desejado:
+        [Gesseiro] [Marceneiro] [Marmoreiro] [Pintor]
+
+2.  **Usuário:** Clica em `[Pintor]`.
+    **Bot:** Qual o tipo de ambiente a ser pintado?
+        [Residencial (Interno)] [Residencial (Externo)] [Comercial (Interno)] [Comercial (Externo)] [Fachada]
+
+3.  **Usuário:** Clica em `[Residencial (Interno)]`.
+    **Bot:** Qual a área total em metros quadrados (m²) a ser pintada (paredes e teto)?
+
+4.  **Usuário:** Digita `100` e pressiona Enter/clica em Enviar.
+    **Bot:** (Valida `100` m²)
+        *Exibe:* `Você: 100 m²`
+        Quantas demãos de tinta são necessárias? (Padrão: 2)
+
+5.  **Usuário:** Digita `3` e pressiona Enter/clica em Enviar.
+    **Bot:** (Valida 3 demãos)
+        *Exibe:* `Você: 3 demãos`
+        Qual a cor principal desejada?
+
+6.  **Usuário:** Digita `#00FF00` (Verde Lima) e pressiona Enter/clica em Enviar.
+    **Bot:** (Valida cor)
+        *Exibe:* `Você: <span style="background-color:#00FF00; width:15px; height:15px;"></span> #00FF00`
+        Qual o tipo de pintura (ex: acrílica, esmalte, textura)?
+
+7.  **Usuário:** Digita `Acrílica fosca` e pressiona Enter/clica em Enviar.
+    **Bot:** (Valida texto)
+        *Exibe:* `Você: Acrílica fosca`
+        Ótimo! Chegamos ao final das perguntas. Calculando seu orçamento...
+        (Exibe indicador de loading)
+
+8.  **Bot:** (Após cálculo e simulação de imagem)
+        Com base nas suas respostas, o orçamento sugerido é:
+        <strong>R$ 2.825,00</strong>
+        <small>(Faixa estimada: R$ 2.390,63 a R$ 3.248,75)</small><br><br>
+        <strong>Detalhes:</strong> Base (Residencial (Interno)): R$ 2.500,00 | Demãos extras (1): R$ 250,00 | Textura (R$ 15,00/m²): R$ 750,00
+        <br><br>
+        <p class="text-warning">Lembre-se: Este é um orçamento simulado...</p>
+        (Exibe a visualização simulada com fundo verde)
+        [Salvar Orçamento (Lead)] [Nova Simulação]
+
+9.  **Usuário:** Clica em `[Salvar Orçamento (Lead)]`.
+    **Bot:** (Pergunta de confirmação) "Você deseja salvar este orçamento como um lead?"
+    **Usuário:** Confirma.
+    **Bot:** (Salva o lead no localStorage)
+        Orçamento para Pintor salvo com sucesso como lead! ID: [ID_GERADO].
+        (Painel de Leads é atualizado, exibindo o novo lead)
+        [Nova Simulação]
+
+10. **Usuário:** Clica em `[Nova Simulação]`.
+    **Bot:** (Reseta o chat)
+        Olá! Por favor, selecione o tipo de serviço desejado:
+        [Gesseiro] [Marceneiro] [Marmoreiro] [Pintor]
+*/
+
+// --- FUNÇÕES DE EMPACOTAMENTO DE LEAD (ETAPA 3 E 4) ---
+
+function packageAndSaveLead() {
+    // Verifica se há serviço e respostas para salvar
+    if (!conversationState.currentService || Object.keys(conversationState.answers).length === 0) {
+        displayBotMessage("Nenhum serviço ou resposta selecionado para salvar.");
+        return;
+    }
+
+    const serviceKey = conversationState.currentService;
+    const serviceDisplayName = serviceConfig.services[serviceKey].displayName;
+    const config = serviceConfig.services[serviceKey];
+
+    // Recalcula o preço final para garantir que os dados salvos estejam corretos
+    let finalPrice = 0;
+    let priceExplanation = '';
+    let priceRange = { min: 0, max: 0 };
+
+    try {
+         // Usa a função interna de cálculo para obter os detalhes do preço
+         const priceResult = computePriceForLead();
+         if (priceResult) {
+             finalPrice = priceResult.suggested;
+             priceExplanation = priceResult.explanation;
+             priceRange = priceResult.range;
+         } else {
+             throw new Error("Cálculo falhou.");
+         }
+     } catch (e) {
+         console.error("Erro ao calcular preço para o lead:", e);
+         displayBotMessage("Erro ao preparar o lead. Não foi possível calcular o preço final.");
+         incrementMetric('errorsEncountered');
+         return;
+     }
+
+    // Cria o objeto do lead
+    const lead = {
+        id: Date.now() + Math.random().toString(36).substring(2, 9), // ID único baseado em timestamp e string aleatória
+        timestamp: new Date().toISOString(), // Data e hora da criação do lead
+        service: serviceDisplayName, // Nome do serviço selecionado
+        serviceKey: serviceKey, // Chave do serviço
+        details: { ...conversationState.answers }, // Todas as respostas do usuário
+        estimatedPrice: finalPrice, // Preço sugerido final
+        priceRange: priceRange, // Faixa de preço
+        priceExplanation: priceExplanation, // Detalhes do cálculo
+        photoUrl: null, // Placeholder para URL da foto (futura implementação)
+        visualizationUrl: null // Placeholder para URL da visualização (futura implementação)
+    };
+
+    // Adiciona o novo lead ao array de leads no estado
+    conversationState.leads.push(lead);
+    saveState(); // Salva o estado atualizado no localStorage
+
+    // Feedback para o usuário
+    displayBotMessage(`Orçamento para ${serviceDisplayName} salvo com sucesso como lead! ID: ${lead.id}.`);
+    displayLeadDashboard(); // Atualiza o dashboard para mostrar o novo lead
+    incrementMetric('leadsSaved'); // Incrementa a métrica de leads salvos
+
+    // Limpa o estado da conversa atual para permitir uma nova simulação
+    resetChat();
+
+    // Atualiza o placeholder do input para indicar que o lead foi salvo e sugerir próxima ação
+     const userInput = document.getElementById('user-input');
+     userInput.style.display = 'block'; // Reexibe o input, mas o desabilita
+     userInput.value = '';
+     userInput.placeholder = "Lead salvo. Escolha uma nova simulação ou gerencie leads.";
+     userInput.disabled = true; // Desabilita digitação direta
+
+     // Atualiza o botão de enviar para não ter funcionalidade ativa
+     const sendButton = document.getElementById('send-button');
+     sendButton.onclick = () => {}; // Remove o listener anterior
+     sendButton.disabled = true; // Desabilita o botão
+}
+
+// Função auxiliar para recalcular o preço sem interagir com a UI, usada ao salvar o lead
+function computePriceForLead() {
+     const serviceKey = conversationState.currentService;
+     const config = serviceConfig.services[serviceKey];
+     const answers = conversationState.answers;
+     const rules = config.pricing_rules;
+     let calculatedPrice = 0;
+     let explanation = [];
+
+     if (!config || !rules) return null; // Retorna null se a configuração não for encontrada
+
+      // Reutiliza a mesma lógica de cálculo interna presente na função computePrice
+     switch (serviceKey) {
+         case 'gesseiro':
+             let area = parseFloat(answers.area_m2) || 0;
+             let pricePerM2 = rules.base_price_per_m2;
+             if (answers.tipo_gesso === 'acartonado') pricePerM2 *= rules.drywall_multiplier;
+             calculatedPrice = area * pricePerM2;
+             if (answers.detalhes_adicionais) {
+                 calculatedPrice += rules.decoration_sanca_fee;
+                 explanation.push(`Detalhes/Sancas: +R$ ${rules.decoration_sanca_fee.toFixed(2)}`);
+             }
+             if (answers.cor_gesso && answers.cor_gesso !== config.questions.find(q => q.id === 'cor_gesso').defaultValue) {
+                 calculatedPrice += area * rules.color_fee_per_m2;
+                 explanation.push(`Pintura/Cor: +R$ ${(area * rules.color_fee_per_m2).toFixed(2)}`);
+             }
+             explanation.push(`Base (${pricePerM2.toFixed(2)}/m²): R$ ${(area * pricePerM2).toFixed(2)}`);
+             calculatedPrice *= rules.material_multiplier;
+             explanation.push(`Material (${(rules.material_multiplier - 1) * 100}%): +R$ ${(calculatedPrice / rules.material_multiplier * (rules.material_multiplier - 1)).toFixed(2)}`);
+             break;
+
+         case 'marceneiro':
+             let height = parseFloat(answers.medidas_altura_cm) || 0;
+             let width = parseFloat(answers.medidas_largura_cm) || 0;
+             let depth = parseFloat(answers.medidas_profundidade_cm) || 0;
+             let volume_cm3 = height * width * depth;
+             let surface_m2 = (volume_cm3 / 1000000) * 2; // Simples aproximação
+             let pricePerCm2 = rules[`price_per_cm2_${answers.material_principal}`] || rules.price_per_cm2_outros;
+             calculatedPrice = (volume_cm3 * pricePerCm2) * 10; // Ajuste
+             explanation.push(`Base (${pricePerCm2.toFixed(3)}/cm³ * ${volume_cm3}cm³): R$ ${(volume_cm3 * pricePerCm2 * 10).toFixed(2)}`);
+             if (answers.cor_acabamento) {
+                 calculatedPrice += rules.finishing_fee;
+                 explanation.push(`Acabamento: +R$ ${rules.finishing_fee.toFixed(2)}`);
+             }
+             const assemblyCost = 2 * rules.assembly_fee_per_hour; // Simulado
+             calculatedPrice += assemblyCost;
+             explanation.push(`Montagem (2h): +R$ ${assemblyCost.toFixed(2)}`);
+             break;
+
+         case 'marmoreiro':
+             let area_m2_marble = parseFloat(answers.area_m2) || 0;
+             let pricePerM2Marble = rules[`price_per_m2_${answers.material_escolhido}`] || rules.price_per_m2_outros;
+             calculatedPrice = area_m2_marble * pricePerM2Marble;
+             explanation.push(`Material (${answers.material_escolhido}): R$ ${(area_m2_marble * pricePerM2Marble).toFixed(2)}`);
+             calculatedPrice += area_m2_marble * rules.processing_fee_per_m2;
+             explanation.push(`Processamento (${rules.processing_fee_per_m2.toFixed(2)}/m²): +R$ ${(area_m2_marble * rules.processing_fee_per_m2).toFixed(2)}`);
+             if (answers.tipo_acabamento_borda && ['bancada_cozinha', 'bancada_banheiro'].includes(answers.tipo_superficie)) {
+                 calculatedPrice += rules.edge_finishing_fee;
+                 explanation.push(`Acabamento Borda: +R$ ${rules.edge_finishing_fee.toFixed(2)}`);
+             }
+             const installationFee = rules.installation_fee_base + (area_m2_marble * rules.installation_fee_per_m2);
+             calculatedPrice += installationFee;
+             explanation.push(`Instalação: +R$ ${installationFee.toFixed(2)}`);
+             break;
+
+         case 'pintor':
+             let area_paint = parseFloat(answers.area_m2) || 0;
+             let pricePerM2Paint = rules[`price_per_m2_${answers.tipo_ambiente}`] || 0;
+             let paintCost = area_paint * pricePerM2Paint;
+             explanation.push(`Base (${answers.tipo_ambiente}): R$ ${(area_paint * pricePerM2Paint).toFixed(2)}`);
+             const numDemos = parseInt(answers.quantidade_demãos) || 2;
+             if (numDemos > 2) {
+                 const extraCoatsCost = area_paint * rules.price_per_demao_extra * (numDemos - 2);
+                 paintCost += extraCoatsCost;
+                 explanation.push(`Demãos extras (${numDemos - 2}): +R$ ${extraCoatsCost.toFixed(2)}`);
+             }
+             if (typeof answers.tipo_pintura === 'string' && answers.tipo_pintura.toLowerCase().includes('textura')) {
+                 const textureCost = area_paint * rules.texture_fee_per_m2;
+                 paintCost += textureCost;
+                 explanation.push(`Textura (${rules.texture_fee_per_m2.toFixed(2)}/m²): +R$ ${textureCost.toFixed(2)}`);
+             }
+             calculatedPrice = paintCost;
+             break;
+
+         default: return null;
+     }
+
+     // Aplicar limites
+     if (calculatedPrice < rules.min_price) calculatedPrice = rules.min_price;
+     if (calculatedPrice > rules.max_price) calculatedPrice = rules.max_price;
+
+     const finalPriceCalc = parseFloat(calculatedPrice.toFixed(2));
+     const rangeLower = finalPriceCalc * 0.85;
+     const rangeUpper = finalPriceCalc * 1.15;
+
+     return {
+         suggested: finalPriceCalc,
+         range: {
+             min: parseFloat(rangeLower.toFixed(2)),
+             max: parseFloat(rangeUpper.toFixed(2))
+         },
+         explanation: explanation.join(' | ')
+     };
+}
+
+
+// --- EXPORTAÇÃO DE LEAD (SIMULADA) ---
+
+function exportLeadAsJson() {
+    const leads = conversationState.leads;
+    if (!leads || leads.length === 0) {
+        alert("Nenhum lead para exportar.");
+        return;
+    }
+
+    // Cria um link de download para o arquivo JSON
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(leads, null, 2));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "leads.json");
+    document.body.appendChild(downloadAnchorNode); // Adiciona temporariamente ao DOM para simular o clique
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove(); // Remove do DOM
+    alert("Leads exportados como leads.json");
+}
+
+// Simulação de exportação para PDF (usando uma lib via CDN na próxima etapa)
+function exportLeadAsPdf() {
+     alert("A exportação para PDF será implementada na próxima etapa usando uma biblioteca como jsPDF via CDN.");
+     // Placeholder para a implementação futura com jsPDF:
+      /*
+      const leads = conversationState.leads;
+      if (!leads || leads.length === 0) { alert("Nenhum lead para exportar."); return; }
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'; // CDN jsPDF
+      script.onload = () => {
+         const { jsPDF } = window.jspdf;
+         const doc = new jsPDF();
+         // Lógica para formatar e adicionar leads ao PDF
+         doc.text("Lista de Leads", 10, 10);
+         let y = 20;
+         leads.forEach((lead, index) => {
+            if (y > 280) { // Nova página se necessário
+                doc.addPage();
+                y = 10;
+            }
+             doc.text(`Lead ${index + 1}: ID ${lead.id} - ${lead.service} - R$ ${lead.estimatedPrice}`, 10, y);
+             y += 10;
+         });
+         doc.save('leads.pdf');
+      };
+      document.body.appendChild(script);
+      */
+}
+
+
+// --- PAINEL DE LEADS E MÉTRICAS (DINÂMICO) ---
+
+function displayLeadDashboard() {
+    const mainContainer = document.querySelector('.container'); // Pega o container principal
+
+    // Verifica se o dashboard já existe para evitar duplicação
+    let dashboardDiv = document.getElementById('lead-dashboard');
+    if (!dashboardDiv) {
+        dashboardDiv = document.createElement('div');
+        dashboardDiv.id = 'lead-dashboard';
+        mainContainer.appendChild(dashboardDiv); // Adiciona ao final do container principal
+    }
+
+    let dashboardContent = `<h2>Meus Leads Salvos</h2>`;
+    if (conversationState.leads && conversationState.leads.length > 0) {
+        // Ordena os leads por data (mais recentes primeiro)
+        const sortedLeads = [...conversationState.leads].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        sortedLeads.forEach(lead => {
+            dashboardContent += `
+                <div class="lead-item">
+                    <h5>Lead #${lead.id.substring(0, 8)} (${lead.service})</h5>
+                    <p><small>Data: ${new Date(lead.timestamp).toLocaleString('pt-BR')}</small></p>
+                    <p>Orçamento: R$ ${lead.estimatedPrice.toLocaleString('pt-BR')} (Faixa: ${lead.range.min.toLocaleString('pt-BR')} - ${lead.range.max.toLocaleString('pt-BR')})</p>
+                    <div class="lead-actions">
+                        <button class="btn btn-info btn-sm" onclick="viewLeadDetails('${lead.id}')">Detalhes</button>
+                        <button class="btn btn-secondary btn-sm" onclick="deleteLead('${lead.id}')">Excluir</button>
+                    </div>
+                </div>
+            `;
+        });
+        // Botões de exportação abaixo da lista de leads
+        dashboardContent += `
+            <div class="text-center mt-3">
+                <button class="btn btn-primary me-2" onclick="exportLeadAsJson()">Exportar JSON</button>
+                <button class="btn btn-secondary" onclick="exportLeadAsPdf()">Exportar PDF (Simulado)</button>
+            </div>
+        `;
+    } else {
+        dashboardContent += '<p>Nenhum lead salvo ainda.</p>';
+    }
+    dashboardDiv.innerHTML = dashboardContent;
+}
+
+// Abre um alerta com os detalhes do lead selecionado
+function viewLeadDetails(leadId) {
+    const lead = conversationState.leads.find(l => l.id === leadId);
+    if (lead) {
+        // Formata os detalhes para exibição
+        let detailsString = `Serviço: ${lead.service}\nData: ${new Date(lead.timestamp).toLocaleString('pt-BR')}\nOrçamento: R$ ${lead.estimatedPrice.toLocaleString('pt-BR')}\nFaixa: R$ ${lead.range.min.toLocaleString('pt-BR')} - R$ ${lead.range.max.toLocaleString('pt-BR')}\nExplicação: ${lead.priceExplanation}\n\nRespostas:\n`;
+        for (const key in lead.details) {
+            detailsString += `- ${key}: ${lead.details[key]}\n`;
+        }
+        alert(detailsString);
+    }
+}
+
+// Remove um lead do array e atualiza o dashboard
+function deleteLead(leadId) {
+    if (confirm("Tem certeza que deseja excluir este lead?")) {
+        conversationState.leads = conversationState.leads.filter(l => l.id !== leadId);
+        saveState(); // Salva o estado sem o lead excluído
+        displayLeadDashboard(); // Atualiza a exibição do dashboard
+    }
+}
+
+// Atualiza a exibição do dashboard de métricas
+function updateMetricsDashboard() {
+    let metricsDiv = document.getElementById('metrics-dashboard');
+    const mainContainer = document.querySelector('.container');
+
+    // Cria o dashboard de métricas se ele ainda não existir
+    if (!metricsDiv) {
+        metricsDiv = document.createElement('div');
+        metricsDiv.id = 'metrics-dashboard';
+        // Tenta inserir o dashboard de métricas antes do dashboard de leads, se ambos existirem
+        const leadsDashboard = document.getElementById('lead-dashboard');
+        if (leadsDashboard) {
+             mainContainer.insertBefore(metricsDiv, leadsDashboard);
+        } else {
+             mainContainer.appendChild(metricsDiv); // Adiciona ao final se não houver dashboard de leads
+        }
+    }
+
+    let metricsContent = `<h2>Métricas de Uso</h2>`;
+    const metrics = conversationState.metrics || { estimatesGiven: 0, leadsSaved: 0, errorsEncountered: 0 }; // Valores padrão
+
+    // Exibe as métricas formatadas
+    metricsContent += `
+        <div class="metric-item">
+            <span>Estimativas Geradas:</span>
+            <span>${metrics.estimatesGiven}</span>
+        </div>
+        <div class="metric-item">
+            <span>Leads Salvos:</span>
+            <span>${metrics.leadsSaved}</span>
+        </div>
+        <div class="metric-item">
+            <span>Erros/Alertas:</span>
+            <span>${metrics.errorsEncountered}</span>
+        </div>
+    `;
+    metricsDiv.innerHTML = metricsContent;
+}
+
+// Controla a visibilidade do dashboard de leads e métricas
+function toggleLeadDashboard() {
+    const dashboard = document.getElementById('lead-dashboard');
+    const metricsDashboard = document.getElementById('metrics-dashboard');
+
+    let anyDashboardVisible = false;
+
+    if (dashboard) {
+        if (dashboard.style.display === 'none' || dashboard.style.display === '') {
+            dashboard.style.display = 'block';
+            anyDashboardVisible = true;
+        } else {
+            dashboard.style.display = 'none';
+        }
+    }
+    if (metricsDashboard) {
+        if (metricsDashboard.style.display === 'none' || metricsDashboard.style.display === '') {
+            metricsDashboard.style.display = 'block';
+            anyDashboardVisible = true;
+        } else {
+            metricsDashboard.style.display = 'none';
+        }
+    }
+
+    // Se nenhum dashboard existia e foi criado, garante que sejam visíveis
+    if (!dashboard && !metricsDashboard && anyDashboardVisible) {
+         displayLeadDashboard();
+         updateMetricsDashboard();
+    }
+}
+
+// --- EVENT LISTENERS ADICIONAIS ---
+// Listener principal para inicialização após o DOM estar pronto
+document.addEventListener('DOMContentLoaded', () => {
+    loadState(); // Carrega o estado do localStorage
+    loadConfig(); // Carrega a configuração dos serviços e renderiza os botões iniciais
+
+    // Cria e adiciona o botão para alternar a visibilidade dos dashboards
+    const container = document.querySelector('.container');
+    if (container) {
+        const toggleButton = document.createElement('button');
+        toggleButton.classList.add('btn', 'btn-outline-info', 'mt-3', 'mb-3'); // Estilos para o botão
+        toggleButton.textContent = 'Ver/Ocultar Leads e Métricas';
+        toggleButton.setAttribute('aria-label', 'Alternar visibilidade do painel de leads e métricas'); // Acessibilidade
         toggleButton.onclick = toggleLeadDashboard; // Define a função a ser chamada ao clicar
 
         // Insere o botão antes do footer, se o footer existir
