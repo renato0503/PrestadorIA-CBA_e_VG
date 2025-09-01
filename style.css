@@ -189,3 +189,9 @@ h1 {
     background-position: center; /* Centraliza a imagem */
     border-radius: 5px; /* Bordas arredondadas para a textura */
 }
+
+/* Estilos adicionais para acessibilidade e confirmação */
+.text-warning {
+    font-weight: bold;
+    color: #dc3545; /* Vermelho para alerta */
+}
