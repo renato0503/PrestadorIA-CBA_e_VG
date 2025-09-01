@@ -150,3 +150,42 @@ h1 {
 .metric-item span:first-child {
     font-weight: bold;
 }
+
+/* Estilos para a visualização simulada */
+.simulated-visual {
+    padding: 20px;
+    margin: 15px auto;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    max-width: 400px;
+    background-color: #f8f9fa; /* Cor de fundo padrão se não especificada */
+}
+
+.simulated-visual p {
+    margin-bottom: 0.5rem;
+}
+
+.simulated-visual-img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-top: 10px;
+    max-height: 250px;
+    object-fit: cover; /* Garante que a imagem cubra a área sem distorcer */
+}
+
+.marble-texture {
+    width: 100%;
+    margin-bottom: 10px;
+    border: 1px solid #ccc; /* Borda para visualização */
+    height: 150px; /* Altura fixa para a textura */
+    background-size: cover; /* Faz a imagem cobrir o container */
+    background-position: center; /* Centraliza a imagem */
+    border-radius: 5px; /* Bordas arredondadas para a textura */
+}
