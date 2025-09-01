@@ -1,0 +1,320 @@
+{
+  "services": {
+    "gesseiro": {
+      "displayName": "Gesseiro",
+      "questions": [
+        {
+          "id": "area_m2",
+          "text": "Qual a área total em metros quadrados (m²) a ser trabalhada com gesso?",
+          "type": "number",
+          "unit": "m²",
+          "validation": {
+            "type": "range",
+            "min": 1,
+            "max": 500
+          },
+          "errorMessage": "Por favor, insira um valor numérico válido entre 1 e 500 m²."
+        },
+        {
+          "id": "tipo_gesso",
+          "text": "Qual tipo de gesso será utilizado?",
+          "type": "select",
+          "options": [
+            {"value": "convencional", "label": "Gesso Convencional (Placas/Paredes)"},
+            {"value": "acartonado", "label": "Gesso Acartonado (Drywall)"},
+            {"value": "decorativo", "label": "Gesso Decorativo (Molduras, Sancas)"}
+          ],
+          "validation": {
+            "type": "required"
+          },
+          "errorMessage": "Por favor, selecione um tipo de gesso."
+        },
+        {
+            "id": "detalhes_adicionais",
+            "text": "Possui detalhes adicionais como sancas, molduras ou rebaixamento especial?",
+            "type": "boolean",
+            "validation": {
+                "type": "required"
+            },
+            "errorMessage": "Por favor, responda sim ou não."
+        },
+        {
+            "id": "cor_gesso",
+            "text": "Qual a cor desejada para o acabamento final do gesso (se aplicável)?",
+            "type": "color",
+            "dependency": {
+                "questionId": "tipo_gesso",
+                "value": "decorativo"
+            },
+            "defaultValue": "#FFFFFF",
+            "validation": {
+                "type": "hexcolor"
+            },
+            "errorMessage": "Por favor, insira um código de cor hexadecimal válido (ex: #FF5733)."
+        }
+      ],
+      "pricing_rules": {
+        "base_price_per_m2": 35.00,
+        "material_multiplier": 1.1,
+        "decoration_sanca_fee": 150.00,
+        "drywall_multiplier": 1.3,
+        "color_fee_per_m2": 10.00,
+        "min_price": 300.00,
+        "max_price": 2500.00
+      }
+    },
+    "marceneiro": {
+      "displayName": "Marceneiro",
+      "questions": [
+        {
+          "id": "tipo_mobiliar",
+          "text": "Qual tipo de móvel ou serviço de marcenaria você precisa?",
+          "type": "text",
+          "validation": {
+            "type": "minLength",
+            "value": 5
+          },
+          "errorMessage": "Por favor, descreva o móvel ou serviço com pelo menos 5 caracteres."
+        },
+        {
+          "id": "medidas_altura_cm",
+          "text": "Qual a altura aproximada em cm?",
+          "type": "number",
+          "unit": "cm",
+           "validation": {
+            "type": "range",
+            "min": 10,
+            "max": 300
+          },
+          "errorMessage": "Insira uma altura válida em cm (10-300)."
+        },
+        {
+          "id": "medidas_largura_cm",
+          "text": "Qual a largura aproximada em cm?",
+          "type": "number",
+          "unit": "cm",
+          "validation": {
+            "type": "range",
+            "min": 10,
+            "max": 300
+          },
+           "errorMessage": "Insira uma largura válida em cm (10-300)."
+        },
+        {
+          "id": "medidas_profundidade_cm",
+          "text": "Qual a profundidade aproximada em cm?",
+          "type": "number",
+          "unit": "cm",
+           "validation": {
+            "type": "range",
+            "min": 5,
+            "max": 150
+          },
+           "errorMessage": "Insira uma profundidade válida em cm (5-150)."
+        },
+        {
+          "id": "material_principal",
+          "text": "Qual o material principal desejado?",
+          "type": "select",
+          "options": [
+            {"value": "mdf", "label": "MDF"},
+            {"value": "compensado", "label": "Compensado"},
+            {"value": "madeira_macica", "label": "Madeira Maciça (Ex: Pinus, Cedro)"},
+            {"value": "outros", "label": "Outros"}
+          ],
+          "validation": {
+            "type": "required"
+          },
+          "errorMessage": "Por favor, selecione um material."
+        },
+        {
+          "id": "cor_acabamento",
+          "text": "Qual a cor ou tipo de acabamento desejado?",
+          "type": "color",
+          "validation": {
+            "type": "hexcolor",
+            "allow_text": true
+          },
+          "defaultValue": "#8B4513",
+           "errorMessage": "Insira um código de cor hexadecimal (ex: #f0f0f0) ou nome da cor (ex: 'Madeira Clara')."
+        }
+      ],
+      "pricing_rules": {
+        "price_per_cm2_mdf": 0.05,
+        "price_per_cm2_compensado": 0.07,
+        "price_per_cm2_madeira_macica": 0.10,
+        "price_per_cm2_outros": 0.08,
+        "finishing_fee": 50.00,
+        "assembly_fee_per_hour": 60.00,
+        "min_price": 200.00,
+        "max_price": 5000.00
+      }
+    },
+    "marmoreiro": {
+      "displayName": "Marmoreiro",
+      "questions": [
+        {
+          "id": "tipo_superficie",
+          "text": "Qual o tipo de superfície a ser feita/revestida?",
+          "type": "select",
+          "options": [
+            {"value": "bancada_cozinha", "label": "Bancada de Cozinha"},
+            {"value": "bancada_banheiro", "label": "Bancada de Banheiro"},
+            {"value": "piso", "label": "Piso"},
+            {"value": "parede", "label": "Revestimento de Parede"},
+            {"value": "soleira", "label": "Soleira/Peitoril"},
+            {"value": "outros", "label": "Outros"}
+          ],
+          "validation": {
+            "type": "required"
+          },
+          "errorMessage": "Por favor, selecione o tipo de superfície."
+        },
+        {
+          "id": "area_m2",
+          "text": "Qual a área total em metros quadrados (m²) a ser coberta?",
+          "type": "number",
+          "unit": "m²",
+          "validation": {
+            "type": "range",
+            "min": 0.1,
+            "max": 50
+          },
+          "errorMessage": "Por favor, insira um valor numérico válido entre 0.1 e 50 m²."
+        },
+        {
+          "id": "material_escolhido",
+          "text": "Qual o tipo de pedra/material você prefere?",
+          "type": "select",
+          "options": [
+            {"value": "granito", "label": "Granito"},
+            {"value": "marmore_branco", "label": "Mármore Branco (Carrara, etc.)"},
+            {"value": "quartzito", "label": "Quartzito"},
+            {"value": "superficie_quartzo", "label": "Superfície de Quartzo (Tecnocimento)"},
+            {"value": "outros", "label": "Outros"}
+          ],
+          "validation": {
+            "type": "required"
+          },
+          "errorMessage": "Por favor, selecione o material."
+        },
+        {
+          "id": "cor_pedra",
+          "text": "Qual a cor ou padrão desejado para a pedra?",
+          "type": "color",
+          "validation": {
+            "type": "hexcolor",
+            "allow_text": true
+          },
+          "defaultValue": "#D3D3D3",
+          "errorMessage": "Insira um código de cor hexadecimal (ex: #B8860B) ou nome da cor (ex: 'Branco Paraná')."
+        },
+        {
+           "id": "tipo_acabamento_borda",
+           "text": "Qual o tipo de acabamento desejado para as bordas (ex: boleada, reta, 45 graus)?",
+           "type": "text",
+           "dependency": {
+                "questionId": "tipo_superficie",
+                "value": ["bancada_cozinha", "bancada_banheiro"]
+           },
+           "validation": {
+               "type": "minLength",
+               "value": 3
+           },
+           "errorMessage": "Descreva o acabamento da borda com pelo menos 3 caracteres."
+        }
+      ],
+      "pricing_rules": {
+        "price_per_m2_granito": 600.00,
+        "price_per_m2_marmore_branco": 800.00,
+        "price_per_m2_quartzito": 750.00,
+        "price_per_m2_superficie_quartzo": 900.00,
+        "price_per_m2_outros": 700.00,
+        "processing_fee_per_m2": 150.00,
+        "edge_finishing_fee": 80.00,
+        "installation_fee_base": 100.00,
+        "installation_fee_per_m2": 50.00,
+        "min_price": 500.00,
+        "max_price": 10000.00
+      }
+    },
+    "pintor": {
+      "displayName": "Pintor",
+      "questions": [
+        {
+          "id": "tipo_ambiente",
+          "text": "Qual o tipo de ambiente a ser pintado?",
+          "type": "select",
+          "options": [
+            {"value": "interno_res", "label": "Residencial (Interno)"},
+            {"value": "externo_res", "label": "Residencial (Externo)"},
+            {"value": "comercial_int", "label": "Comercial (Interno)"},
+            {"value": "comercial_ext", "label": "Comercial (Externo)"},
+            {"value": "fachada", "label": "Fachada"}
+          ],
+          "validation": {
+            "type": "required"
+          },
+          "errorMessage": "Por favor, selecione o tipo de ambiente."
+        },
+        {
+          "id": "area_m2",
+          "text": "Qual a área total em metros quadrados (m²) a ser pintada (paredes e teto)?",
+          "type": "number",
+          "unit": "m²",
+          "validation": {
+            "type": "range",
+            "min": 5,
+            "max": 1000
+          },
+          "errorMessage": "Por favor, insira um valor numérico válido entre 5 e 1000 m²."
+        },
+        {
+          "id": "quantidade_demãos",
+          "text": "Quantas demãos de tinta são necessárias?",
+          "type": "number",
+          "unit": "demãos",
+          "defaultValue": 2,
+           "validation": {
+            "type": "range",
+            "min": 1,
+            "max": 5
+          },
+           "errorMessage": "Por favor, insira um número de demãos válido (1-5)."
+        },
+        {
+          "id": "cor_desejada",
+          "text": "Qual a cor principal desejada?",
+          "type": "color",
+          "validation": {
+            "type": "hexcolor",
+            "allow_text": true
+          },
+          "defaultValue": "#FFFFFF",
+          "errorMessage": "Insira um código de cor hexadecimal (ex: #FFD700) ou nome da cor (ex: 'Branco Neve')."
+        },
+         {
+          "id": "tipo_pintura",
+          "text": "Qual o tipo de pintura (ex: acrílica, esmalte, textura)?",
+          "type": "text",
+          "validation": {
+            "type": "minLength",
+            "value": 4
+          },
+          "errorMessage": "Descreva o tipo de pintura com pelo menos 4 caracteres."
+        }
+      ],
+      "pricing_rules": {
+        "price_per_m2_interno_res": 25.00,
+        "price_per_m2_externo_res": 35.00,
+        "price_per_m2_comercial_int": 30.00,
+        "price_per_m2_comercial_ext": 40.00,
+        "price_per_m2_fachada": 45.00,
+        "price_per_demao_extra": 5.00,
+        "texture_fee_per_m2": 15.00,
+        "min_price": 250.00,
+        "max_price": 8000.00
+      }
+    }
+  }
+}

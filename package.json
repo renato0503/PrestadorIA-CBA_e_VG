@@ -1,0 +1,17 @@
+{
+  "name": "servicos-bot-prototipo-notepad",
+  "version": "1.0.0",
+  "description": "Protótipo de chatbot para prestadores de serviço.",
+  "main": "src/main.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/seu-usuario/servicos-bot-prototipo-notepad.git"
+  },
+  "keywords": ["chatbot", "servicos", "orcamento", "prototipo"],
+  "author": "Seu Nome/Empresa",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/seu-usuario/servicos-bot-prototipo-notepad/issues"
+  },
+  "homepage": "https://github.com/seu-usuario/servicos-bot-prototipo-notepad#readme"
+}

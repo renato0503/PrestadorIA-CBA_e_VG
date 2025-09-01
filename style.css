@@ -1,0 +1,152 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+    padding-top: 20px;
+}
+
+.container {
+    max-width: 700px;
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+header {
+    border-bottom: 1px solid #eee;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+}
+
+h1 {
+    color: #007bff;
+}
+
+#chat-output {
+    min-height: 300px;
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: #fdfdfd;
+}
+
+.message {
+    margin-bottom: 15px;
+    padding: 10px 15px;
+    border-radius: 15px;
+    line-height: 1.4;
+}
+
+.bot-message {
+    background-color: #e9ecef;
+    color: #495057;
+    border-bottom-left-radius: 0;
+    margin-right: 50px; /* Espaço para avatar */
+    text-align: left;
+}
+
+.user-message {
+    background-color: #007bff;
+    color: white;
+    border-bottom-right-radius: 0;
+    margin-left: 50px; /* Espaço para avatar */
+    text-align: right;
+}
+
+/* Estilos para botões de sugestão */
+#service-selection .btn,
+#input-suggestions .btn {
+    margin: 5px;
+    padding: 10px 20px;
+    font-size: 1.0em;
+    border-radius: 20px;
+}
+
+#chat-input-area .form-control {
+    border-radius: 20px 0 0 20px;
+}
+
+#chat-input-area .btn {
+    border-radius: 0 20px 20px 0;
+}
+
+/* Estilos específicos para inputs de medição */
+.measurement-input-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.measurement-input-group input {
+    max-width: 100px;
+    text-align: right;
+}
+.measurement-input-group span {
+    white-space: nowrap;
+}
+
+/* Estilos para mensagens de erro */
+.error-message {
+    color: #dc3545;
+    font-size: 0.9em;
+    margin-top: 5px;
+}
+
+/* Estilos para painel de leads */
+#lead-dashboard {
+    margin-top: 30px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f1f3f5;
+}
+
+#lead-dashboard h2 {
+    color: #007bff;
+    margin-bottom: 20px;
+}
+
+.lead-item {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.lead-actions button {
+    margin-right: 10px;
+}
+
+/* Estilos para métricas */
+#metrics-dashboard {
+     margin-top: 30px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f1f3f5;
+}
+
+#metrics-dashboard h2 {
+    color: #007bff;
+    margin-bottom: 20px;
+}
+
+.metric-item {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.metric-item span:first-child {
+    font-weight: bold;
+}
